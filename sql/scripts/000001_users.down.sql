@@ -1,0 +1,1 @@
+DROP TABLE gnr_user;
