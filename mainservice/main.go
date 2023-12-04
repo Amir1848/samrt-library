@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/Amir1848/samrt-library/routes"
@@ -21,6 +22,7 @@ func init() {
 		envFileName = "development.env"
 	}
 
+	fmt.Println(envFileName)
 	err := godotenv.Load(envFileName)
 	if err != nil {
 		panic("cannot load env file")
