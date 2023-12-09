@@ -20,8 +20,7 @@ func AddRoutes(router *gin.RouterGroup) {
 			return
 		}
 
-		c := ctx.Request.Context()
-		id, err := libraryService.Insert(c, &lb)
+		id, err := libraryService.Insert(ctx, &lb)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
