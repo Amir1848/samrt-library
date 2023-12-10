@@ -1,21 +1,21 @@
 services:
-  mainservice:
-    image: mainservice
-    environment:
-      - ENV=production
-    ports:
-      - 8080:8080
-    # container_name: mainservice
+  # mainservice:
+  #   image: mainservice
+  #   environment:
+  #     - ENV=production
+  #   ports:
+  #     - 8080:8080
+  #   # container_name: mainservice
     
 
   db:
-    image: postgres
-    expose:
-      - 5432
+    build:
+      dockerfile: Dockerfile.postgres
+      context: ./mainservice
     ports:
       - 1234:5432
     volumes:
       - "./db-volume/:/var/lib/postgresql/data"
     environment:
       - POSTGRES_PASSWORD=1
-    container_name: mainservice-db
+    container_name: sepidar_postgres
