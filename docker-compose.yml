@@ -1,21 +1,37 @@
+version: '3.8'
 services:
-  # mainservice:
-  #   image: mainservice
-  #   environment:
-  #     - ENV=production
-  #   ports:
-  #     - 8080:8080
-  #   # container_name: mainservice
-    
-
-  db:
-    build:
-      dockerfile: Dockerfile.postgres
-      context: ./mainservice
-    ports:
+   #note this databaseservice name is what we will use instead
+   #of localhost when using migrate as compose assigns
+   #the service name as host
+   #for example if we had another container in the same compose
+   #that wnated to access this service port 2000 we would have written
+   # databaseservicename:2000
+  sepidar_db:
+    image: postgres:alpine
+    restart: always
+    expose:
+      - 5432
+    ports: 
       - 1234:5432
-    volumes:
-      - "./db-volume/:/var/lib/postgresql/data"
     environment:
-      - POSTGRES_PASSWORD=1
-    container_name: sepidar_postgres
+      POSTGRES_PASSWORD: 1
+      POSTGRES_USER: postgres
+      POSTGRES_DB: sepidar_library
+
+    volumes:
+      - ./db-volume/:/var/lib/postgresql/data
+
+    #if we had another container that wanted to access migrate container at let say
+    #port 1000
+    #and it's in the same compose file  we would have written migrate:1000
+  migrate:
+    image: migrate/migrate
+
+    depends_on:
+      - sepidar_db
+
+    volumes:
+      - ./mainservice/sql/scripts:/database
+    # here instead of localhost as the host we use databaseservicename as that is the name we gave to the postgres service
+    command:
+      [ "-path", "/database", "-database",  "postgres://postgres:1@sepidar_db:5432/sepidar_library?sslmode=disable", "up" ]
