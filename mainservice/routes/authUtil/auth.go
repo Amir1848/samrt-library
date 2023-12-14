@@ -15,7 +15,7 @@ import (
 	jwt "github.com/golang-jwt/jwt/v5"
 )
 
-func AuthorizeOr(requestedRoles []users.UserRole) func(*gin.Context) {
+func AuthorizeOr(requestedRoles ...users.UserRole) func(*gin.Context) {
 	return func(c *gin.Context) {
 		tokenString, err := validateAndGetAuthorizationToken(c)
 		if err != nil {
@@ -42,20 +42,25 @@ func AuthorizeOr(requestedRoles []users.UserRole) func(*gin.Context) {
 				return
 			}
 
-			// existedRoles := claims["roles"].([]users.UserRole)
-			// existedRolesHashset := map[users.UserRole]struct{}{}
-			// for _, item := range existedRoles {
-			// 	existedRolesHashset[item] = struct{}{}
-			// }
+			if len(requestedRoles) == 0 {
+				return
+			}
 
-			// for _, item := range requestedRoles {
-			// 	_, found := existedRolesHashset[item]
-			// 	if found {
-			// 		return
-			// 	}
-			// }
+			requestedRolesSet := map[users.UserRole]struct{}{}
+			for _, item := range requestedRoles {
+				requestedRolesSet[item] = struct{}{}
+			}
+
+			existedRoles := claims["roles"].([]interface{})
+			for _, existedItem := range existedRoles {
+				_, found := requestedRolesSet[users.UserRole(int(existedItem.(float64)))]
+				if found {
+					return
+				}
+			}
+
+			c.AbortWithStatus(http.StatusForbidden)
 			return
-			// c.AbortWithStatus(http.StatusForbidden)
 		} else {
 			c.AbortWithError(http.StatusUnauthorized, err)
 			return

@@ -12,7 +12,7 @@ import (
 func AddRoutes(router *gin.RouterGroup) {
 	r := router.Group("library")
 
-	r.POST("insert", authutil.AuthorizeOr([]users.UserRole{users.RoleLibAdmin}), func(ctx *gin.Context) {
+	r.POST("insert", authutil.AuthorizeOr(users.RoleLibAdmin), func(ctx *gin.Context) {
 		lb := libraryService.GnrLibrary{}
 		err := ctx.ShouldBindJSON(&lb)
 		if err != nil {
@@ -31,9 +31,9 @@ func AddRoutes(router *gin.RouterGroup) {
 		})
 	})
 
-	r.GET("/get-libraries", func(ctx *gin.Context) {
-		c := ctx.Request.Context()
-		result, err := libraryService.GetLibraries(c)
+	r.GET("/get-library", authutil.AuthorizeOr(users.RoleLibAdmin), func(ctx *gin.Context) {
+
+		result, err := libraryService.GetLibraries(ctx)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return

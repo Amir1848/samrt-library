@@ -34,17 +34,22 @@ func Insert(ctx context.Context, model *GnrLibrary) (int64, error) {
 	return model.Id, err
 }
 
-func GetLibraries(ctx context.Context) (result []*GnrLibrary, err error) {
+func GetLibraries(ctx context.Context) (result *GnrLibrary, err error) {
 	db, err := dbutil.GetDBConnection(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	libs := []*GnrLibrary{}
-	err = db.Table("gnr_library").Select("*").Scan(&libs).Error
+	userId := authutil.GetUserId(ctx)
+
+	lib := GnrLibrary{}
+	err = db.Table("gnr_library").
+		Where("user_id = ?", userId).
+		Limit(1).
+		Select("*").Scan(&lib).Error
 	if err != nil {
 		return nil, err
 	}
 
-	return libs, nil
+	return &lib, nil
 }

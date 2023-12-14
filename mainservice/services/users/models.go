@@ -17,7 +17,7 @@ type GnrUserRole struct {
 	Role   UserRole `gorm:"column:role_c"`
 }
 
-type UserRole float64
+type UserRole int
 
 const (
 	RoleSysAdmin UserRole = 1

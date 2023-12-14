@@ -1,6 +1,6 @@
 CREATE TABLE gnr_user(
     id BIGSERIAL PRIMARY KEY,
-    student_code VARCHAR(50) NOT NULL,
+    student_code VARCHAR(50) NOT NULL UNIQUE,
     password_c VARCHAR(500) NOT NULL
 );
 

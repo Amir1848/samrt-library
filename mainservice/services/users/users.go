@@ -22,7 +22,7 @@ func GetUsers(ctx context.Context) error {
 	// db.Table("users")
 }
 
-func RegisterUser(ctx context.Context, model *UserViewModel) error {
+func RegisterUser(ctx context.Context, model *UserViewModel, roles []UserRole) error {
 	dbUser := &GnrUser{
 		StudentCode: model.StudentCode,
 	}
@@ -45,12 +45,15 @@ func RegisterUser(ctx context.Context, model *UserViewModel) error {
 			return err
 		}
 
-		userRole := GnrUserRole{
-			UserId: dbUser.Id,
-			Role:   RoleUser,
+		userRoles := []*GnrUserRole{}
+		for _, item := range roles {
+			userRoles = append(userRoles, &GnrUserRole{
+				UserId: dbUser.Id,
+				Role:   item,
+			})
 		}
 
-		err = tx.Table("gnr_user_role").Create(&userRole).Error
+		err = tx.Table("gnr_user_role").Create(&userRoles).Error
 		if err != nil {
 			return err
 		}
