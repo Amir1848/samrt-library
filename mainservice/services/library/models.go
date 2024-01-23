@@ -1,8 +1,9 @@
 package library
 
 type GnrLibrary struct {
-	Id     int64
-	Title  string
-	UserId int64
-	Token  string
+	Id       int64
+	Title    string
+	UserId   int64
+	Token    string
+	IsOnline bool
 }

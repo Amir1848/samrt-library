@@ -53,3 +53,17 @@ func GetLibraries(ctx context.Context) (result *GnrLibrary, err error) {
 
 	return &lib, nil
 }
+
+func GetLibraryWithToken(ctx context.Context, tx *gorm.DB, token string) (lib *GnrLibrary, found bool, err error) {
+	lib = &GnrLibrary{}
+	fetchResult := tx.Table("gnr_library").Where("token = ?", token).Scan(lib)
+	if fetchResult.Error != nil {
+		return nil, false, err
+	}
+
+	return lib, fetchResult.RowsAffected > 0, nil
+}
+
+func SetLibraryStatus(ctx context.Context, tx *gorm.DB, tableId int64, isOnline bool) error {
+	return tx.Table("gnr_library").Where("id = ?", tableId).Update("is_online", isOnline).Error
+}
