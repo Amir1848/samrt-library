@@ -43,7 +43,7 @@ func handleConnection(conn net.Conn) {
 	var libraryId int64 = 0
 	defer func() {
 		if libraryId > 0 {
-			library.SetLibraryStatus(ctx, db, libraryId, true)
+			library.SetLibraryStatus(ctx, db, libraryId, false)
 		}
 		conn.Close()
 	}()
@@ -86,7 +86,7 @@ func handleConnection(conn net.Conn) {
 func readStringFromConnection(conn net.Conn) (string, error) {
 	token, err := bufio.NewReader(conn).ReadString('\n')
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 
 	token = strings.Trim(token, "\r\n")
