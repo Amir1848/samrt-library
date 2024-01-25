@@ -15,3 +15,14 @@ type GnrLibraryItem struct {
 }
 
 type LibraryStatus int
+
+type LibraryForView struct {
+	Id       int64
+	Title    string
+	IsOnline bool
+}
+
+type LibraryInfoWithItems struct {
+	Library      *LibraryForView
+	LibraryItems []*GnrLibraryItem
+}

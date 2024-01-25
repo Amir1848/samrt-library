@@ -43,7 +43,7 @@ func Insert(ctx context.Context, model *GnrLibrary, items []*GnrLibraryItem) (in
 	return model.Id, err
 }
 
-func GetLibraries(ctx context.Context) (result *GnrLibrary, err error) {
+func GetLibAdminLibrary(ctx context.Context) (result *GnrLibrary, err error) {
 	db, err := dbutil.GetDBConnection(ctx)
 	if err != nil {
 		return nil, err
@@ -97,4 +97,51 @@ func SetLibItemStatus(ctx context.Context, tx *gorm.DB, libID int64, itemName st
 	}
 
 	return nil
+}
+
+func GetAllLibraries(ctx context.Context) ([]*LibraryForView, error) {
+	db, err := dbutil.GetDBConnection(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	libs := []*LibraryForView{}
+	err = db.Table("gnr_library").Select("*").Scan(&libs).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return libs, nil
+}
+
+func GetLibraryWithItems(ctx context.Context, id int64) (result *LibraryInfoWithItems, found bool, err error) {
+	db, err := dbutil.GetDBConnection(ctx)
+	if err != nil {
+		return
+	}
+
+	lib := LibraryForView{}
+	fetchResult := db.Table("gnr_library").Where("id = ?", id).Select("*").Scan(&lib)
+	if fetchResult.Error != nil {
+		err = fetchResult.Error
+		return
+	}
+
+	if fetchResult.RowsAffected == 0 {
+		found = false
+		return
+	}
+	found = true
+
+	libItems := []*GnrLibraryItem{}
+	err = db.Table("gnr_library_item").Where("library_id = ?", id).Scan(&libItems).Error
+	if err != nil {
+		return
+	}
+
+	result = &LibraryInfoWithItems{
+		Library:      &lib,
+		LibraryItems: libItems,
+	}
+	return result, true, nil
 }
