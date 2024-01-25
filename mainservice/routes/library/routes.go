@@ -9,18 +9,23 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type libraryWithItem struct {
+	Library      *libraryService.GnrLibrary
+	LibraryItems []*libraryService.GnrLibraryItem
+}
+
 func AddRoutes(router *gin.RouterGroup) {
 	r := router.Group("library")
 
 	r.POST("insert", authutil.AuthorizeOr(users.RoleLibAdmin), func(ctx *gin.Context) {
-		lb := libraryService.GnrLibrary{}
+		lb := libraryWithItem{}
 		err := ctx.ShouldBindJSON(&lb)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
-		id, err := libraryService.Insert(ctx, &lb)
+		id, err := libraryService.Insert(ctx, lb.Library, lb.LibraryItems)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return

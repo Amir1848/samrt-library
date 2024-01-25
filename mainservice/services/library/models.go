@@ -7,3 +7,11 @@ type GnrLibrary struct {
 	Token    string
 	IsOnline bool
 }
+
+type GnrLibraryItem struct {
+	Title     string
+	Status    LibraryStatus
+	LibraryId int64
+}
+
+type LibraryStatus int

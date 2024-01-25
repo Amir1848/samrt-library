@@ -9,7 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func Insert(ctx context.Context, model *GnrLibrary) (int64, error) {
+func Insert(ctx context.Context, model *GnrLibrary, items []*GnrLibraryItem) (int64, error) {
 	db, err := dbutil.GetDBConnection(ctx)
 	if err != nil {
 		return 0, err
@@ -21,6 +21,15 @@ func Insert(ctx context.Context, model *GnrLibrary) (int64, error) {
 
 	err = dbutil.CreateDatabaseTransaction(db, func(tx *gorm.DB) error {
 		err := tx.Table("gnr_library").Create(model).Error
+		if err != nil {
+			return err
+		}
+
+		for _, item := range items {
+			item.LibraryId = model.Id
+		}
+
+		err = tx.Table("gnr_library_item").Create(&items).Error
 		if err != nil {
 			return err
 		}
