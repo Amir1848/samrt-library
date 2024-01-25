@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/Amir1848/samrt-library/services/library"
@@ -43,7 +44,8 @@ func handleConnection(conn net.Conn) {
 	var libraryId int64 = 0
 	defer func() {
 		if libraryId > 0 {
-			library.SetLibraryStatus(ctx, db, libraryId, true)
+			library.SetLibraryStatus(ctx, db, libraryId, false)
+			library.SetLibraryItemsAsUnknown(ctx, db, libraryId)
 		}
 		conn.Close()
 	}()
@@ -77,6 +79,37 @@ func handleConnection(conn net.Conn) {
 		if err != nil {
 			fmt.Println(err)
 			return
+		}
+
+		if command == "" {
+			continue
+		}
+
+		commandParts := strings.Split(command, " ")
+		if len(commandParts) == 0 {
+			continue
+		}
+
+		switch commandParts[0] {
+		case "set":
+			if len(commandParts) != 3 {
+				continue
+			}
+
+			itemName := commandParts[1]
+			status := commandParts[2]
+			statusCode, err := strconv.Atoi(status)
+			if err != nil {
+				conn.Write([]byte("value " + status + " is not valid status"))
+				continue
+			}
+
+			err = library.SetLibItemStatus(ctx, db, libraryId, itemName, statusCode)
+			if err != nil {
+				fmt.Print(err)
+				return
+			}
+
 		}
 
 		fmt.Println(command)

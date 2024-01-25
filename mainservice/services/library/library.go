@@ -73,6 +73,28 @@ func GetLibraryWithToken(ctx context.Context, tx *gorm.DB, token string) (lib *G
 	return lib, fetchResult.RowsAffected > 0, nil
 }
 
-func SetLibraryStatus(ctx context.Context, tx *gorm.DB, tableId int64, isOnline bool) error {
-	return tx.Table("gnr_library").Where("id = ?", tableId).Update("is_online", isOnline).Error
+func SetLibraryStatus(ctx context.Context, tx *gorm.DB, libID int64, isOnline bool) error {
+	return tx.Table("gnr_library").Where("id = ?", libID).Update("is_online", isOnline).Error
+}
+
+func SetLibraryItemsAsUnknown(ctx context.Context, tx *gorm.DB, tableId int64) error {
+	err := tx.Table("gnr_library_item").
+		Where("library_id = ?", tableId).
+		Update("status", 0).Error
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func SetLibItemStatus(ctx context.Context, tx *gorm.DB, libID int64, itemName string, status int) error {
+	err := tx.Table("gnr_library_item").
+		Where("library_id = ?", libID).
+		Update("status", status).Error
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
