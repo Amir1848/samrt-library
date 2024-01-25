@@ -119,7 +119,7 @@ func handleConnection(conn net.Conn) {
 func readStringFromConnection(conn net.Conn) (string, error) {
 	token, err := bufio.NewReader(conn).ReadString('\n')
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 
 	token = strings.Trim(token, "\r\n")
