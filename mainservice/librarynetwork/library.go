@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/Amir1848/samrt-library/services/library"
+	"github.com/Amir1848/samrt-library/services/notification"
 	"github.com/Amir1848/samrt-library/utils/dbutil"
 )
 
@@ -106,6 +107,24 @@ func handleConnection(conn net.Conn) {
 			}
 
 			err = library.SetLibItemStatus(ctx, libraryId, itemName, statusCode, studentCode)
+			if err != nil {
+				fmt.Print(err)
+				return
+			}
+		case "notify":
+			if len(commandParts) != 3 {
+				continue
+			}
+
+			studentCode := commandParts[1]
+			messageType := commandParts[2]
+
+			messageTypeInt, err := strconv.Atoi(messageType)
+			if err != nil {
+				conn.Write([]byte("value " + messageType + " is not valid status"))
+				continue
+			}
+			err = notification.NotifyUser(ctx, studentCode, messageTypeInt)
 			if err != nil {
 				fmt.Print(err)
 				return
