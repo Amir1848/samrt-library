@@ -7,4 +7,5 @@ type GnrNotification struct {
 	UserRef int64
 	Type    int       `gorm:"column:type_c"`
 	Date    time.Time `gorm:"column:date_c"`
+	Title   string    `gorm:"-"`
 }
