@@ -126,3 +126,16 @@ func createJwtToken(studentCode string, roles []UserRole, userId int64) (string,
 
 	return s, err
 }
+
+func GetUserIdByStudentCode(ctx context.Context, tx *gorm.DB, studentCode string) (int64, error) {
+
+	var result int64 = 0
+	err := tx.Table("gnr_user").
+		Where("student_code = ?", studentCode).
+		Select("id").Scan(&result).Error
+	if err != nil {
+		return 0, err
+	}
+
+	return result, nil
+}

@@ -92,19 +92,20 @@ func handleConnection(conn net.Conn) {
 
 		switch commandParts[0] {
 		case "set":
-			if len(commandParts) != 3 {
+			if len(commandParts) != 4 {
 				continue
 			}
 
 			itemName := commandParts[1]
 			status := commandParts[2]
+			studentCode := commandParts[3]
 			statusCode, err := strconv.Atoi(status)
 			if err != nil {
 				conn.Write([]byte("value " + status + " is not valid status"))
 				continue
 			}
 
-			err = library.SetLibItemStatus(ctx, db, libraryId, itemName, statusCode)
+			err = library.SetLibItemStatus(ctx, libraryId, itemName, statusCode, studentCode)
 			if err != nil {
 				fmt.Print(err)
 				return

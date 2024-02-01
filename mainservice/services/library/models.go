@@ -1,5 +1,7 @@
 package library
 
+import "time"
+
 type GnrLibrary struct {
 	Id       int64
 	Title    string
@@ -25,4 +27,11 @@ type LibraryForView struct {
 type LibraryInfoWithItems struct {
 	Library      *LibraryForView
 	LibraryItems []*GnrLibraryItem
+}
+
+type GnrStudentHistory struct {
+	Id             int64
+	UserRef        int64
+	Date           time.Time `gorm:"column:date_c"`
+	LibraryItemRef int64
 }

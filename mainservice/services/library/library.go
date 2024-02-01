@@ -2,8 +2,11 @@ package library
 
 import (
 	"context"
+	"errors"
+	"time"
 
 	authutil "github.com/Amir1848/samrt-library/routes/authUtil"
+	"github.com/Amir1848/samrt-library/services/users"
 	"github.com/Amir1848/samrt-library/utils/dbutil"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -88,10 +91,49 @@ func SetLibraryItemsAsUnknown(ctx context.Context, tx *gorm.DB, tableId int64) e
 	return nil
 }
 
-func SetLibItemStatus(ctx context.Context, tx *gorm.DB, libID int64, itemName string, status int) error {
-	err := tx.Table("gnr_library_item").
-		Where("library_id = ?", libID).
-		Update("status", status).Error
+func SetLibItemStatus(ctx context.Context, libID int64, itemName string, status int, studentCode string) error {
+
+	db, err := dbutil.GetDBConnection(ctx)
+	if err != nil {
+		return err
+	}
+
+	err = dbutil.CreateDatabaseTransaction(db, func(tx *gorm.DB) error {
+		var libraryItemId int64 = 0
+		err := tx.Table("gnr_library_item").
+			Where("title = ? AND library_id = ?", itemName, libID).
+			Select("id").Scan(&libraryItemId).Error
+		if err != nil {
+			return err
+		}
+
+		if err != nil {
+			return errors.New("table item name is does not exist")
+		}
+
+		err = tx.Table("gnr_library_item").
+			Where("id = ?", libraryItemId).
+			Update("status", status).Error
+		if err != nil {
+			return err
+		}
+
+		studentId, err := users.GetUserIdByStudentCode(ctx, tx, studentCode)
+		if err != nil {
+			return err
+		}
+
+		err = tx.Table("gnr_student_history").Create(&GnrStudentHistory{
+			UserRef:        studentId,
+			Date:           time.Now(),
+			LibraryItemRef: libraryItemId,
+		}).Error
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
 	if err != nil {
 		return err
 	}
