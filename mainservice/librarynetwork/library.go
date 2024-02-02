@@ -109,7 +109,7 @@ func handleConnection(conn net.Conn) {
 			err = library.SetLibItemStatus(ctx, libraryId, itemName, statusCode, studentCode)
 			if err != nil {
 				fmt.Print(err)
-				return
+				continue
 			}
 		case "notify":
 			if len(commandParts) != 3 {
@@ -127,7 +127,7 @@ func handleConnection(conn net.Conn) {
 			err = notification.NotifyUser(ctx, studentCode, messageTypeInt)
 			if err != nil {
 				fmt.Print(err)
-				return
+				continue
 			}
 
 		}
