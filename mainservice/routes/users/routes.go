@@ -13,6 +13,16 @@ func AddRoutes(routerGroup *gin.RouterGroup) {
 
 	r.POST("register", registerUserFunc(usersService.RoleUser))
 
+	r.GET("get-all-users", authutil.AuthorizeOr(usersService.RoleSysAdmin, usersService.RoleLibAdmin), func(ctx *gin.Context) {
+		var result, err = usersService.GetAllUserStudentCodes(ctx)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		ctx.JSON(http.StatusOK, gin.H{"studentCodes": result})
+	})
+
 	r.POST("login", func(ctx *gin.Context) {
 		c := ctx.Request.Context()
 
