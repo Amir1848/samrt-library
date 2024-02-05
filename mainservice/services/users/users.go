@@ -139,3 +139,19 @@ func GetUserIdByStudentCode(ctx context.Context, tx *gorm.DB, studentCode string
 
 	return result, nil
 }
+
+func GetAllUserStudentCodes(ctx context.Context) ([]string, error) {
+	var allStudents = []string{}
+
+	db, err := dbutil.GetDBConnection(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	err = db.Table("gnr_user").Select("student_code").Scan(&allStudents).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return allStudents, nil
+}
