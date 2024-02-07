@@ -9,8 +9,8 @@ import (
 )
 
 func ServeSensorServer() {
-	fmt.Println("listening to port 86 for sensor server")
-	ln, err := net.Listen("tcp", ":86")
+	fmt.Println("listening to port 8600 for sensor server")
+	ln, err := net.Listen("tcp", ":8600")
 	if err != nil {
 		fmt.Println(err)
 		return

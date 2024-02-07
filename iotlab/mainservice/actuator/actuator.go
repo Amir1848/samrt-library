@@ -14,8 +14,8 @@ func SendCommandToActurator(command string) {
 func ServeActuatorServer() {
 	commandSenderChannel = make(chan string)
 
-	fmt.Println("listening to port 85 for actuator server")
-	ln, err := net.Listen("tcp", ":85")
+	fmt.Println("listening to port 8500 for actuator server")
+	ln, err := net.Listen("tcp", ":8500")
 	if err != nil {
 		fmt.Println(err)
 		return
